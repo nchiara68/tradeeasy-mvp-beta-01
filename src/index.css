@@ -1,83 +1,122 @@
-/* 1) Tailwind v4 core */
+/* src/index.css */
+/* Tailwind v4 core */
 @import "tailwindcss";
 
-/* 2) Make `dark:` utilities respond to a data attribute on <html> */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/* DARK MODE BEHAVIOR (match old `darkMode: "class"`): 
+   use <html class="dark"> to enable dark: utilities */
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* 3) Your brand tokens (crypto-style deep blue) */
-@theme {
-  /* Brand blues (name them however you like) */
-  --color-crypto-50:  #f3f7ff;
-  --color-crypto-100: #e6efff;
-  --color-crypto-200: #c7dbff;
-  --color-crypto-300: #9cbcff;
-  --color-crypto-400: #6b96ff;
-  --color-crypto-500: #3f6fff; /* primary (light) */
-  --color-crypto-600: #2c54d6;
-  --color-crypto-700: #1e3fa8;
-  --color-crypto-800: #132b7a;
-  --color-crypto-900: #0c1f59;
-  --color-crypto-950: #0a173f;
+/* -------------------------------------------------------
+   GLOBAL PAGE WIDTH (used by .app-container)
+   Change via JS by updating :root --app-max-w
+   Default: 56rem (≈ Tailwind max-w-4xl)
+-------------------------------------------------------- */
+/* src/index.css */
+:root { --app-max-w: 56rem; } /* default (4xl) */
 
-  /* semantic “app” surface/text tokens you can re-map per mode */
-  --color-surface: var(--surface-light); /* Tailwind can use bg-(--surface) */
-  --color-text:    var(--text-light);
-
-  /* fallback palette hook-ups (optional quality-of-life) */
-  --color-primary-500: var(--color-crypto-500);
+.app-container {
+  max-width: var(--app-max-w);   /* ← direct CSS var */
+  /* keep the rest as Tailwind utilities */
+  @apply mx-auto w-full px-6;
 }
 
-/* 4) Light/Dark variable switches for your app and Amplify */
+
+/* -------------------------------------------------------
+   THEME TOKENS (Tailwind v4 @theme)
+   - Fonts
+   - Brand colors (from your old config)
+   - A small crypto-blue scale used in examples
+   - Semantic app vars that swap in dark mode
+-------------------------------------------------------- */
+@theme {
+  /* Typography */
+  --font-sans: "Roboto", system-ui, sans-serif;
+
+  /* Old-config brand colors */
+  --color-brand-dark:      #0E0F11; /* page/card dark */
+  --color-brand-navy:      #0B2342; /* deep navy */
+  --color-brand-midblue:   #0F3C77; /* mid blue */
+  --color-brand-blue:      #114FA5; /* accent blue */
+  --color-brand-deepnavy:  #0D1A29; /* navy tint */
+  --color-font-primary:    #FFFFFF; /* primary text */
+  --color-font-secondary:  #BDBDBD; /* secondary text */
+
+  /* Crypto demo colors used in ToggleExamplePage */
+  --color-crypto-300: #9cbcff;
+  --color-crypto-600: #2c54d6;
+  --color-crypto-700: #1e3fa8;
+  --color-crypto-950: #0a173f;
+
+  /* App semantic tokens (consumed via variable utilities) */
+  --color-surface: var(--surface-light);
+  --color-text:    var(--text-light);
+}
+
+/* -------------------------------------------------------
+   LIGHT / DARK VARIABLE SWAPS
+-------------------------------------------------------- */
 :root {
-  /* app surfaces */
+  /* App surfaces/text (light defaults) */
   --surface-light: #ffffff;
-  --text-light:    #0c1f59; /* deep navy text */
+  --text-light:    var(--color-brand-navy);
 
-  --surface-dark:  #0b1020; /* rich crypto blue-black */
-  --text-dark:     #e6ecff;
+  /* Dark-mode values */
+  --surface-dark:  var(--color-brand-dark);
+  --text-dark:     var(--color-font-primary);
 
-  /* initialize current mode vars for app */
+  /* Current (resolved) values */
   --color-surface: var(--surface-light);
   --color-text:    var(--text-light);
 
-  /* --- Amplify UI light mode brand alignment --- */
-  /* Map Amplify’s brand + backgrounds to your crypto blues */
-  --amplify-colors-primary-80:  var(--color-crypto-600);
-  --amplify-colors-primary-100: var(--color-crypto-700);
+  /* Amplify (light) — mapped to your palette */
+  --amplify-colors-primary-80:  var(--color-brand-blue);
+  --amplify-colors-primary-100: var(--color-brand-midblue);
   --amplify-colors-font-primary: var(--text-light);
   --amplify-colors-background-primary: #ffffff;
   --amplify-colors-background-secondary: #f6f8ff;
 }
 
-/* When Amplify ThemeProvider is on light mode explicitly */
-[data-amplify-color-mode="light"] {
-  --amplify-colors-primary-80:  var(--color-crypto-600);
-  --amplify-colors-primary-100: var(--color-crypto-700);
-  --amplify-colors-font-primary: var(--text-light);
-  --amplify-colors-background-primary: #ffffff;
-  --amplify-colors-background-secondary: #f6f8ff;
-}
-
-/* When Amplify ThemeProvider is on dark mode explicitly */
-[data-amplify-color-mode="dark"] {
-  --amplify-colors-primary-80:  var(--color-crypto-400);
-  --amplify-colors-primary-100: var(--color-crypto-300);
-  --amplify-colors-font-primary: var(--text-dark);
-  --amplify-colors-background-primary: #0b1020;
-  --amplify-colors-background-secondary: #0f1731;
-}
-
-/* 5) Your app’s dark mode variable swap */
-:root[data-theme="dark"] {
+/* When <html class="dark"> is present, swap app vars */
+:root.dark {
   --color-surface: var(--surface-dark);
   --color-text:    var(--text-dark);
 }
 
-/* 6) A tiny baseline using tokens with Tailwind’s variable utilities */
-html, body, #root {
-  height: 100%;
+/* If Amplify ThemeProvider also sets dark, match its tokens */
+[data-amplify-color-mode="dark"] {
+  --amplify-colors-primary-80:  var(--color-crypto-300); /* brighter accent in dark */
+  --amplify-colors-primary-100: var(--color-crypto-300);
+  --amplify-colors-font-primary: var(--text-dark);
+  --amplify-colors-background-primary: var(--surface-dark);
+  --amplify-colors-background-secondary: #0f1731;
 }
-body {
-  /* Tailwind utilities referencing CSS vars (v4 nicety) */
-  @apply bg-(--color-surface) text-(--color-text) antialiased;
+
+/* -------------------------------------------------------
+   BASE ELEMENTS
+-------------------------------------------------------- */
+html, body, #root { height: 100%; }
+body { @apply bg-(--color-surface) text-(--color-text) antialiased font-sans; }
+
+/* -------------------------------------------------------
+   UTILITIES that mirror your old config
+-------------------------------------------------------- */
+/* Gradient surface (bg-card-gradient) */
+.bg-card-gradient {
+  background-image: linear-gradient(135deg, #114FA5, #0B2342);
 }
+
+/* Semantic typography helpers (use if you like) */
+.text-display { @apply text-[3rem]   leading-[1.1] tracking-[-0.01em] font-bold; }
+.text-h1      { @apply text-[2.25rem] leading-[1.2] font-bold; }
+.text-h2      { @apply text-[1.75rem] leading-[1.25] font-bold; }
+.text-h3      { @apply text-[1.5rem]  leading-[1.3]  font-bold; }
+
+.text-body-lg { @apply text-[1.125rem] leading-[1.6]; }
+.text-body    { @apply text-[1rem]    leading-[1.6]; }
+.text-body-sm { @apply text-[0.875rem] leading-[1.5]; }
+
+.text-label   { @apply text-[0.75rem] leading-[1.4] tracking-[0.05em] font-medium; }
+
+/* Optional: logo spin demo */
+@keyframes logo-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.motion-safe\:animate-logo-spin { animation: logo-spin 20s linear infinite; }

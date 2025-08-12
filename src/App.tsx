@@ -1,6 +1,6 @@
 // src/App.tsx
-import { ToggleExamplePage } from './pages/ToggleExamplePage'
+import { RootRouter } from './routes/RootRouter'
 
 export default function App() {
-  return <ToggleExamplePage />
+  return <RootRouter />
 }

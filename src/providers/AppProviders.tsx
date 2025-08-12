@@ -1,31 +1,26 @@
 // src/providers/AppProviders.tsx
 import React from 'react'
-import {
-  ThemeProvider,
-  defaultDarkModeOverride,
-  type ColorMode,
-} from '@aws-amplify/ui-react'
+import { ThemeProvider, defaultDarkModeOverride, type ColorMode } from '@aws-amplify/ui-react'
 import { ColorModeContext } from './color-mode-context'
-import { getInitialColorMode, storeColorMode, resolveSystemMode } from '../utils/colorMode'
+import { AppWidthProvider } from './AppWidthProvider'
 
-type Props = { children: React.ReactNode }
+const KEY = 'color-mode'
+const getInitial = (): ColorMode => (localStorage.getItem(KEY) as ColorMode) || 'light'
 
-export function AppProviders({ children }: Props) {
-  const [mode, setMode] = React.useState<ColorMode>(getInitialColorMode)
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  const [mode, setMode] = React.useState<ColorMode>(getInitial)
 
-  // keep Tailwind's dark variant in sync via <html data-theme="">
   React.useEffect(() => {
     const root = document.documentElement
-    const effective = mode === 'system' ? resolveSystemMode() : mode
-    root.setAttribute('data-theme', effective)
-    storeColorMode(mode)
+    // remove both possibilities (cleanup any old code paths)
+    root.removeAttribute('data-theme')
+    root.classList.remove('dark')
 
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => {
-      if (mode === 'system') root.setAttribute('data-theme', resolveSystemMode())
+    if (mode === 'dark') {
+      root.classList.add('dark')
     }
-    mq.addEventListener?.('change', onChange)
-    return () => mq.removeEventListener?.('change', onChange)
+    // persist choice
+    localStorage.setItem(KEY, mode)
   }, [mode])
 
   const theme = React.useMemo(
@@ -33,16 +28,15 @@ export function AppProviders({ children }: Props) {
     []
   )
 
-  const value = React.useMemo(
-    () => ({ mode, setMode }),
-    [mode]
-  )
+  const ctx = React.useMemo(() => ({ mode, setMode }), [mode])
 
   return (
-    <ColorModeContext.Provider value={value}>
-      <ThemeProvider theme={theme} colorMode={mode}>
-        {children}
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+    <AppWidthProvider>
+        <ColorModeContext.Provider value={ctx}>
+        <ThemeProvider theme={theme} colorMode={mode}>
+            {children}
+        </ThemeProvider>
+        </ColorModeContext.Provider>
+    </AppWidthProvider>
   )
 }

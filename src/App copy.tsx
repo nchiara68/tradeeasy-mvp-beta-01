@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { Header } from './ui/Header'
+import { HomePage } from './pages/HomePage'
+import { PlaygroundPage } from './pages/PlaygroundPage'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+      <Header />
+      {/* Simple secondary nav to switch pages (optional) */}
+      <nav className="app-container mt-4 flex gap-2">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            [
+              'px-3 py-1 rounded-md border',
+              isActive
+                ? 'bg-crypto-600 text-white border-crypto-700'
+                : 'bg-(--color-surface) text-(--color-text) border-crypto-600/30 dark:border-crypto-300/30'
+            ].join(' ')
+          }
+          end
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/playground"
+          className={({ isActive }) =>
+            [
+              'px-3 py-1 rounded-md border',
+              isActive
+                ? 'bg-crypto-600 text-white border-crypto-700'
+                : 'bg-(--color-surface) text-(--color-text) border-crypto-600/30 dark:border-crypto-300/30'
+            ].join(' ')
+          }
+        >
+          Playground
+        </NavLink>
+      </nav>
+
+      <main className="app-container mt-6 grid gap-6">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/playground" element={<PlaygroundPage />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
   )
 }
-
-export default App
