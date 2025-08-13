@@ -2,8 +2,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from '../ui/Header'
 import { NavTabs } from '../ui/NavTabs'
-import { HomePage } from '../pages/HomePage'
-import { PlaygroundPage } from '../pages/PlaygroundPage'
+import { HomePage } from '../pages/seller/HomePage'
+import { PlaygroundPage } from '../pages/seller/PlaygroundPage'
 
 export function RootRouter() {
   return (

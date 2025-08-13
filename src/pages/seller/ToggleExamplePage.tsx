@@ -2,8 +2,8 @@
 //import React from 'react'
 import type { ColorMode } from '@aws-amplify/ui-react'
 import { Button, Card, Heading, Text } from '@aws-amplify/ui-react'
-import { useColorMode } from '../providers/color-mode-context'
-import { GlobalWidthSelect } from '../ui/GlobalWidthSelect'
+import { useColorMode } from '../../providers/color-mode-context'
+import { GlobalWidthSelect } from '../../ui/GlobalWidthSelect'
 import NavyLogo from '../assets/TradeEasyLogoNAVY.png'
 import WhiteLogo from '../assets/TradeEasyLogoWHITE.png'
 
@@ -48,7 +48,7 @@ export function ToggleExamplePage() {
       <main className="app-container mt-8 grid gap-6">
         <Card variation="elevated" className="p-6 bg-(--color-surface)">
           <Heading level={4} className="mb-2">
-            Amplify + Tailwind v4
+            Amplify + Tailwind v4 SELLER
           </Heading>
           <Text>
             This card is styled by Amplify UI, but colors come from our theme via CSS variables.
