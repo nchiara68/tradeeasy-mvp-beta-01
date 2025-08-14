@@ -1,12 +1,12 @@
 // src/pages/HomePage.tsx
 import { Button, Card, Heading, Text } from '@aws-amplify/ui-react'
 
-export function HomePage() {
+export default function TestPage() {
   return (
     <>
       <Card variation="elevated" className="p-6 bg-(--color-surface)">
         <Heading level={4} className="mb-2">
-          Amplify + Tailwind v4
+          Amplify + Tailwind v4 + FUNDER
         </Heading>
         <Text>
           This card is styled by Amplify UI, but colors come from our theme via CSS variables.

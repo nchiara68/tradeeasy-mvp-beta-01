@@ -56,30 +56,33 @@ export default function App() {
     // Simple two-column grid: fixed-width sidebar + fluid content.
     // You can swap this for a CSS module, Tailwind, or CSS-in-JS later.
     <div
-      className="grid min-h-screen bg-(--color-surface) text-(--color-text)"
-      style={{ gridTemplateColumns: '220px 1fr' }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '220px 1fr', // left column fixed, right column fills
+        minHeight: '100vh',               // full-height layout
+      }}
     >
       {/* Left rail (navigation). The Sidebar component is role-aware and
           hides/shows sections depending on the user's Cognito groups.
           It reads the same roleSections the router used, so links match routes. */}
       <aside
-        className="border-r border-crypto-600/20 dark:border-crypto-300/20"
-        style={{ padding: 16 }}
-        aria-label="Sidebar navigation"
-      >
-        <Sidebar />
-      </aside>
-
-      {/* Main content area. React Router will render the matched child
-          route element here via <Outlet/>. The actual page component is
-          lazy-loaded and wrapped by per-role <Suspense> in <RoleChunk/>,
-          so while the chunk is loading users see the role-specific fallback. */}
-      <main className="py-6" role="main">
-        {/* <-- this makes the global width cap apply */}
-        <div className="app-container">
-          <Outlet />
-        </div>
-      </main>
+              className="border-r border-crypto-600/20 dark:border-crypto-300/20"
+              style={{ padding: 16 }}
+              aria-label="Sidebar navigation"
+            >
+              <Sidebar />
+            </aside>
+      
+            {/* Main content area. React Router will render the matched child
+                route element here via <Outlet/>. The actual page component is
+                lazy-loaded and wrapped by per-role <Suspense> in <RoleChunk/>,
+                so while the chunk is loading users see the role-specific fallback. */}
+            <main className="py-6" role="main">
+              {/* <-- this makes the global width cap apply */}
+              <div className="app-container">
+                <Outlet />
+              </div>
+            </main>
     </div>
   );
 }

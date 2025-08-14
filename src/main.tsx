@@ -1,29 +1,25 @@
 // src/main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { Amplify } from 'aws-amplify';
-import outputs from '../amplify_outputs.json';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { Amplify } from 'aws-amplify'
+import outputs from '../amplify_outputs.json'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { Authenticator } from '@aws-amplify/ui-react'
+import '@aws-amplify/ui-react/styles.css'
+import './index.css' // ← add/keep this line
+import App from './App'
+import Protected from './routes/Protected'
+import RoleChunk from './routes/RoleChunk'
+import NotAuthorized from './routes/NotAuthorized'
+import NotFound from './routes/NotFound'
+import SignIn from './routes/SignIn'
+import { roleSections, lazyPages } from './routes/config'
+import { AppProviders } from './providers/AppProviders'
 
-import App from './App';
-import Protected from './routes/Protected';
-import RoleChunk from './routes/RoleChunk';
-import NotAuthorized from './routes/NotAuthorized';
-import NotFound from './routes/NotFound';
+// Configure Amplify
+Amplify.configure(outputs)
 
-// Option B auto-discovery results
-// - roleSections: [{ basePath, allowedGroups, pages: [{ path, componentKey }...] }, ...]
-// - lazyPages: Record<componentKey, React.LazyExoticComponent<Component>>
-import { roleSections, lazyPages } from './routes/config';
-
-// Configure Amplify with your generated outputs
-Amplify.configure(outputs);
-
-// Build protected sub-routes per role.
-// Each role section gets its own Suspense boundary via <RoleChunk/>.
-// IMPORTANT: since lazyPages holds *components*, not elements, we use React.createElement(...)
+// Build protected role routes dynamically
 const roleRoutes = roleSections.map(({ basePath, allowedGroups, pages }) => ({
   path: basePath,
   element: (
@@ -35,28 +31,38 @@ const roleRoutes = roleSections.map(({ basePath, allowedGroups, pages }) => ({
     path,
     element: React.createElement(lazyPages[componentKey]),
   })),
-}));
+}))
 
-// Top-level router
+// Router definition
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <Authenticator hideSignUp>
-        <App />
-      </Authenticator>
-    ),
     errorElement: <NotFound />,
     children: [
-      ...roleRoutes,
-      { path: 'not-authorized', element: <NotAuthorized /> },
+      // Public welcome/sign-in page
+      { index: true, element: <SignIn /> },
+
+      // Protected app shell (with theme + width providers)
+      {
+        element: (
+          <AppProviders>
+            <Authenticator.Provider>
+              <App />
+            </Authenticator.Provider>
+          </AppProviders>
+        ),
+        children: [
+          ...roleRoutes,
+          { path: 'not-authorized', element: <NotAuthorized /> },
+        ],
+      },
     ],
   },
-]);
+])
 
 // Mount the app
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
-);
+)
