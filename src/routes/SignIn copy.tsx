@@ -1,35 +1,54 @@
 // src/routes/SignIn.tsx
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Authenticator } from '@aws-amplify/ui-react'
+import { fetchUserAttributes } from 'aws-amplify/auth'
 
 function pickLandingPath(groups: string[] = []) {
-  if (groups.includes('Admin'))  return '/admin/page1';
-  if (groups.includes('Seller')) return '/seller/page1';
-  if (groups.includes('Funder')) return '/funder/page1';
-  if (groups.includes('Debtor')) return '/debtor/page1';
-  return '/not-authorized';
+  const set = new Set(groups.map(g => g.toLowerCase()))
+  if (set.has('admin'))  return '/admin/admin-test-page'
+  if (set.has('seller')) return '/seller/seller-test-page'
+  if (set.has('funder')) return '/funder/funder-test-page'
+  if (set.has('debtor')) return '/debtor/debtor-test-page'
+  return '/not-authorized'
+}
+
+function AuthRedirector({ user }: { user: unknown }) {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!user) return
+    
+    const getGroupsAndNavigate = async () => {
+      try {
+        const attributes = await fetchUserAttributes()
+        const groups = (attributes['custom:groups'] as string)?.split(',') ?? []
+        navigate(pickLandingPath(groups), { replace: true })
+      } catch {
+        navigate('/not-authorized', { replace: true })
+      }
+    }
+    
+    getGroupsAndNavigate()
+  }, [user, navigate])
+
+  return (
+    <div className="text-center">
+      <h1 className="text-2xl font-semibold mb-2">Welcome to TradeEasy</h1>
+      <p className="opacity-75">{user ? 'Redirecting…' : 'Sign in to continue'}</p>
+    </div>
+  )
 }
 
 export default function SignIn() {
-  const navigate = useNavigate();
-  const { authStatus } = useAuthenticator((ctx) => [ctx.authStatus]);
-
-  useEffect(() => {
-    if (authStatus === 'authenticated') {
-      (async () => {
-        const session = await fetchAuthSession();
-        const groups = (session.tokens?.idToken?.payload?.['cognito:groups'] as string[]) ?? [];
-        navigate(pickLandingPath(groups), { replace: true });
-      })();
-    }
-  }, [authStatus, navigate]);
-
   return (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-      {/* For invite-only, hide sign up; set `hideSignUp={true}` */}
-      <Authenticator initialState="signIn" hideSignUp={true} />
+    <div className="min-h-screen grid place-items-center">
+      <div className="w-full max-w-sm">
+        {/* Full auth UI on the public page; hide sign-up if invite-only */}
+        <Authenticator initialState="signIn" hideSignUp>
+          {({ user }) => <AuthRedirector user={user} />}
+        </Authenticator>
+      </div>
     </div>
-  );
+  )
 }
