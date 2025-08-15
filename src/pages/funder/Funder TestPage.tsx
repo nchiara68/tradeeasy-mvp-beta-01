@@ -1,4 +1,4 @@
-// src/pages/HomePage.tsx
+// src/pages/Funder TestPage.tsx
 import { Button, Card, Heading, Text } from '@aws-amplify/ui-react'
 
 export default function TestPage() {
@@ -18,7 +18,7 @@ export default function TestPage() {
         </div>
       </Card>
 
-      <section className="rounded-xl border border-crypto-600/20 dark:border-crypto-300/20 p-6 bg-white dark:bg-crypto-950">
+      <section className="rounded-xl border border-crypto-600/20 dark:border-crypto-300/20 p-6 bg-(--color-surface)">
         <h2 className="text-xl font-medium text-crypto-700 dark:text-crypto-200 mb-2">
           Tailwind Section
         </h2>

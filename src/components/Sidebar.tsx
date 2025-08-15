@@ -1,6 +1,6 @@
 // src/components/Sidebar.tsx
 import { Suspense } from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { signOut } from 'aws-amplify/auth'
 import { useGroups } from '../auth/useGroups'
@@ -13,40 +13,38 @@ export default function Sidebar() {
   const { user } = useAuthenticator()
   const { groups } = useGroups()
 
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    [
+      'rounded px-2 py-1 text-sm transition-colors',
+      isActive
+        ? 'bg-crypto-600 text-white'
+        : 'text-(--color-text) hover:bg-crypto-600/10 dark:hover:bg-crypto-300/10'
+    ].join(' ')
+
   return (
-    <div className="flex flex-col gap-4 text-sm">
-      {/* User */}
-      <div className="mb-2">
+    <div className="flex flex-col gap-5 text-sm">
+      {/* user */}
+      <div className="mb-1">
         <strong className="block text-(--color-text)">{user?.signInDetails?.loginId}</strong>
       </div>
 
-      {/* Sections */}
-      <div className="flex flex-col gap-5">
-        {roleSections.map(section =>
-          canSee(groups, section.allowedGroups) ? (
-            <div key={section.basePath}>
-              {/* 🔹 Bold captions as requested */}
-              <h4 className="mb-2 font-semibold text-crypto-700 dark:text-crypto-200">
-                {section.label}
-              </h4>
+      {/* sections */}
+      {roleSections.map(section =>
+        canSee(groups, section.allowedGroups) ? (
+          <div key={section.basePath}>
+            <h4 className="mb-2 font-semibold text-crypto-700 dark:text-crypto-200">{section.label}</h4>
+            <nav className="flex flex-col gap-0.5">
+              {section.pages.map(p => (
+                <NavLink key={p.path} to={`/${section.basePath}/${p.path}`} className={linkClass}>
+                  {p.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+        ) : null
+      )}
 
-              <nav className="flex flex-col gap-1">
-                {section.pages.map(p => (
-                  <Link
-                    key={p.path}
-                    to={`/${section.basePath}/${p.path}`}
-                    className="rounded px-1 py-0.5 hover:bg-crypto-600/10 dark:hover:bg-crypto-300/10"
-                  >
-                    {p.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          ) : null
-        )}
-      </div>
-
-      {/* Actions */}
+      {/* actions */}
       <div className="pt-2">
         <button
           onClick={() => signOut()}
@@ -56,7 +54,6 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Lazy placeholders, if you add any */}
       <Suspense fallback={null} />
     </div>
   )
