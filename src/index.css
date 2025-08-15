@@ -2,50 +2,55 @@
 /* Tailwind v4 core */
 @import "tailwindcss";
 
-/* DARK MODE BEHAVIOR (match old `darkMode: "class"`): 
-   use <html class="dark"> to enable dark: utilities */
+/* Dark mode triggers via <html class="dark"> */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* -------------------------------------------------------
    GLOBAL PAGE WIDTH (used by .app-container)
-   Change via JS by updating :root --app-max-w
-   Default: 56rem (≈ Tailwind max-w-4xl)
 -------------------------------------------------------- */
-/* src/index.css */
 :root { --app-max-w: 56rem; } /* default (4xl) */
 
 .app-container {
-  max-width: var(--app-max-w);   /* ← direct CSS var */
-  /* keep the rest as Tailwind utilities */
+  max-width: var(--app-max-w);
   @apply mx-auto w-full px-6;
 }
 
-
 /* -------------------------------------------------------
    THEME TOKENS (Tailwind v4 @theme)
-   - Fonts
-   - Brand colors (from your old config)
-   - A small crypto-blue scale used in examples
-   - Semantic app vars that swap in dark mode
+   - Typography
+   - Brand palette (TradeEasy)
+   - Backwards-compat "crypto" scale used in your components
+   - Semantic app vars (surface/text) that swap in dark mode
 -------------------------------------------------------- */
 @theme {
   /* Typography */
   --font-sans: "Roboto", system-ui, sans-serif;
 
-  /* Old-config brand colors */
-  --color-brand-dark:      #0E0F11; /* page/card dark */
-  --color-brand-navy:      #0B2342; /* deep navy */
-  --color-brand-midblue:   #0F3C77; /* mid blue */
-  --color-brand-blue:      #114FA5; /* accent blue */
-  --color-brand-deepnavy:  #0D1A29; /* navy tint */
-  --color-font-primary:    #FFFFFF; /* primary text */
-  --color-font-secondary:  #BDBDBD; /* secondary text */
+  /* ===== TradeEasy brand (from PDF) ===== */
+  /* Wing Commander (primary) / Lynx Screen Blue (accent) */
+  --color-tr-primary: #0066b3; /* deep blue */
+  --color-tr-accent:  #32b2e7; /* cyan-blue */
 
-  /* Crypto demo colors used in ToggleExamplePage */
-  --color-crypto-300: #9cbcff;
-  --color-crypto-600: #2c54d6;
-  --color-crypto-700: #1e3fa8;
-  --color-crypto-950: #0a173f;
+  /* Supportive tints/shades derived to cover states */
+  --color-tr-primary-700: #00589a;
+  --color-tr-primary-600: #0066b3; /* alias of primary */
+  --color-tr-primary-500: #1a78c0;
+  --color-tr-primary-400: #2c89cb;
+
+  --color-tr-accent-400: #32b2e7; /* alias of accent */
+  --color-tr-accent-300: #5ec8f0;
+  --color-tr-accent-200: #95dcf6;
+
+  /* Deep navies (crypto dark) kept from your earlier theme */
+  --color-navy-900: #0B2342;  /* deep navy (dark bg) */
+  --color-navy-800: #0D1A29;  /* navy tint */
+  --color-navy-950: #061226;  /* near-black navy */
+
+  /* Back-compat "crypto" tokens used by your JSX */
+  --color-crypto-300: var(--color-tr-accent-300);
+  --color-crypto-600: var(--color-tr-primary-600);
+  --color-crypto-700: var(--color-tr-primary-700);
+  --color-crypto-950: var(--color-navy-950);
 
   /* App semantic tokens (consumed via variable utilities) */
   --color-surface: var(--surface-light);
@@ -56,39 +61,41 @@
    LIGHT / DARK VARIABLE SWAPS
 -------------------------------------------------------- */
 :root {
-  /* App surfaces/text (light defaults) */
+  /* LIGHT mode */
   --surface-light: #ffffff;
-  --text-light:    var(--color-brand-navy);
+  --surface-muted-light: #f4f7fb;   /* subtle panels/stripes */
+  --text-light:  #12253d;           /* ink on white (navy-ish) */
 
-  /* Dark-mode values */
-  --surface-dark:  var(--color-brand-dark);
-  --text-dark:     var(--color-font-primary);
+  /* DARK mode (crypto) */
+  --surface-dark:        var(--color-navy-900);
+  --surface-muted-dark:  #0f1731;   /* panel contrast on dark */
+  --text-dark:           #ffffff;
 
-  /* Current (resolved) values */
+  /* Current resolved values (default to light) */
   --color-surface: var(--surface-light);
   --color-text:    var(--text-light);
 
-  /* Amplify (light) — mapped to your palette */
-  --amplify-colors-primary-80:  var(--color-brand-blue);
-  --amplify-colors-primary-100: var(--color-brand-midblue);
+  /* ===== Amplify (light) mapped to brand ===== */
+  --amplify-colors-primary-80:  var(--color-tr-primary);
+  --amplify-colors-primary-100: var(--color-tr-primary-400);
   --amplify-colors-font-primary: var(--text-light);
   --amplify-colors-background-primary: #ffffff;
-  --amplify-colors-background-secondary: #f6f8ff;
+  --amplify-colors-background-secondary: var(--surface-muted-light);
 }
 
-/* When <html class="dark"> is present, swap app vars */
+/* Swap when <html class="dark"> is present */
 :root.dark {
   --color-surface: var(--surface-dark);
   --color-text:    var(--text-dark);
 }
 
-/* If Amplify ThemeProvider also sets dark, match its tokens */
+/* If Amplify ThemeProvider is dark, align its tokens */
 [data-amplify-color-mode="dark"] {
-  --amplify-colors-primary-80:  var(--color-crypto-300); /* brighter accent in dark */
-  --amplify-colors-primary-100: var(--color-crypto-300);
+  --amplify-colors-primary-80:  var(--color-tr-accent-300);
+  --amplify-colors-primary-100: var(--color-tr-accent-200);
   --amplify-colors-font-primary: var(--text-dark);
   --amplify-colors-background-primary: var(--surface-dark);
-  --amplify-colors-background-secondary: #0f1731;
+  --amplify-colors-background-secondary: var(--surface-muted-dark);
 }
 
 /* -------------------------------------------------------
@@ -98,14 +105,15 @@ html, body, #root { height: 100%; }
 body { @apply bg-(--color-surface) text-(--color-text) antialiased font-sans; }
 
 /* -------------------------------------------------------
-   UTILITIES that mirror your old config
+   UTILITIES / HELPERS
 -------------------------------------------------------- */
-/* Gradient surface (bg-card-gradient) */
+/* Gradient used on hero/card headers */
 .bg-card-gradient {
-  background-image: linear-gradient(135deg, #114FA5, #0B2342);
+  /* primary → deep navy */
+  background-image: linear-gradient(135deg, var(--color-tr-primary), var(--color-navy-900));
 }
 
-/* Semantic typography helpers (use if you like) */
+/* Semantic typography helpers (from your old config) */
 .text-display { @apply text-[3rem]   leading-[1.1] tracking-[-0.01em] font-bold; }
 .text-h1      { @apply text-[2.25rem] leading-[1.2] font-bold; }
 .text-h2      { @apply text-[1.75rem] leading-[1.25] font-bold; }
@@ -117,6 +125,6 @@ body { @apply bg-(--color-surface) text-(--color-text) antialiased font-sans; }
 
 .text-label   { @apply text-[0.75rem] leading-[1.4] tracking-[0.05em] font-medium; }
 
-/* Optional: logo spin demo */
+/* (optional) tiny demo anim */
 @keyframes logo-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .motion-safe\:animate-logo-spin { animation: logo-spin 20s linear infinite; }
